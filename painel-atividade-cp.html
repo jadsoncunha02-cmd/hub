@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Atividade — CPs</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+  :root{
+    --primary:#f4a504;--primary-l:rgba(244,165,4,.13);--primary-b:rgba(244,165,4,.3);
+    --dark:#111111;--dark-b:rgba(255,255,255,.08);
+    --text:#2D3748;--muted:#94a3b8;--light:#f4f7f9;--white:#fff;--border:#e2e8f0;
+    --active:#10b981;--active-l:rgba(16,185,129,.1);
+    --warn:#f59e0b;--warn-l:rgba(245,158,11,.12);
+    --danger:#ef4444;--danger-l:rgba(239,68,68,.1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Google Sans',sans-serif;background:var(--light);color:var(--text);min-height:100vh;}
+
+  /* HEADER */
+  .hdr{background:var(--dark);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--dark-b);}
+  .hdr-l{display:flex;align-items:center;gap:12px;}
+  .hdr-ic{width:28px;height:28px;background:var(--primary);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#111;}
+  .hdr-title{font-size:.92rem;font-weight:700;color:#e2e8f0;}
+  .hdr-sub{font-size:.68rem;color:var(--muted);margin-top:1px;}
+  .hdr-badge{font-size:.7rem;background:rgba(255,255,255,.06);border:1px solid var(--dark-b);color:var(--muted);padding:4px 10px;border-radius:5px;}
+
+  /* STATS — reativas */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);background:var(--white);border-bottom:1px solid var(--border);}
+  .stat{padding:14px 22px;border-right:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:background .2s;}
+  .stat:last-child{border-right:none;}
+  .stat.dimmed{opacity:.45;}
+  .stat-ic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+  .ic-blue{background:rgba(59,130,246,.1);color:#3b82f6;}
+  .ic-green{background:var(--active-l);color:var(--active);}
+  .ic-gray{background:rgba(148,163,184,.1);color:var(--muted);}
+  .ic-yellow{background:var(--primary-l);color:var(--primary);}
+  .stat-v{font-size:1.4rem;font-weight:800;color:var(--text);line-height:1;transition:all .25s;}
+  .stat-l{font-size:.68rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+  .stat-note{font-size:.6rem;color:var(--muted);margin-top:3px;font-style:italic;}
+
+  /* FILTERS */
+  .filters{background:var(--white);padding:10px 24px;border-bottom:1px solid var(--border);display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+  .sw{position:relative;flex:1 1 200px;min-width:150px;max-width:260px;}
+  .sw i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.78rem;}
+  input[type="search"]{width:100%;background:var(--light);border:2px solid var(--border);color:var(--text);padding:7px 10px 7px 30px;border-radius:7px;font-family:'Outfit',sans-serif;font-size:.8rem;outline:none;transition:border .2s;}
+  input[type="search"]:focus{border-color:var(--primary);}
+  input[type="search"]::placeholder{color:var(--muted);}
+  input[type="search"]::-webkit-search-cancel-button{display:none;}
+  .fg{display:flex;align-items:center;gap:5px;}
+  .fl{font-size:.65rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+  select{background:var(--light);border:2px solid var(--border);color:var(--text);padding:7px 26px 7px 9px;border-radius:7px;font-family:'Outfit',sans-serif;font-size:.78rem;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border .2s;min-width:105px;}
+  select:focus{border-color:var(--primary);}
+  select:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-clear{background:transparent;border:2px solid var(--border);color:var(--muted);padding:7px 10px;border-radius:7px;font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .btn-clear:hover{border-color:var(--danger);color:var(--danger);}
+  .divider{width:1px;height:22px;background:var(--border);flex-shrink:0;}
+  .btn-view{background:var(--light);border:2px solid var(--border);color:var(--muted);padding:7px 10px;border-radius:7px;font-size:.78rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;font-family:'Outfit',sans-serif;font-weight:600;white-space:nowrap;}
+  .btn-view.active,.btn-view:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-l);}
+
+  /* RESULT BAR */
+  .rbar{padding:7px 24px;display:flex;align-items:center;justify-content:space-between;background:var(--light);border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap;}
+  .rcount{font-size:.75rem;color:var(--muted);font-weight:500;}
+  .rcount span{color:var(--text);font-weight:700;}
+  .d1-note{font-size:.65rem;color:var(--muted);background:var(--white);border:1px solid var(--border);padding:3px 8px;border-radius:4px;}
+
+  /* GRID */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;padding:18px 24px 30px;}
+
+  /* CARD */
+  .card{background:var(--white);border-radius:12px;border:1px solid var(--border);padding:18px;transition:transform .2s,box-shadow .2s,border-color .2s;position:relative;}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.07);border-color:var(--primary-b);}
+  .card.is-active{border-top:3px solid var(--active);}
+  .card.is-inactive{border-top:3px solid var(--border);opacity:.82;}
+  .card.is-inactive:hover{opacity:1;}
+
+  .ctop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:5px;}
+  .cname{font-size:.85rem;font-weight:700;color:var(--text);line-height:1.35;flex:1;}
+  .sbadge{display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:.65rem;font-weight:700;white-space:nowrap;flex-shrink:0;}
+  .sbadge.active{background:var(--active-l);color:#065f46;}
+  .sbadge.inactive{background:rgba(148,163,184,.1);color:var(--muted);}
+
+  .dot{width:7px;height:7px;border-radius:50%;position:relative;flex-shrink:0;}
+  .dot.active{background:var(--active);box-shadow:0 0 5px var(--active);}
+  .dot.active::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:var(--active);opacity:.4;animation:ripple 1.8s ease-in-out infinite;}
+  @keyframes ripple{0%{transform:scale(1);opacity:.4}60%{transform:scale(2.4);opacity:0}100%{transform:scale(1);opacity:.4}}
+  .dot.inactive{background:var(--muted);opacity:.45;}
+
+  .cmeta{display:flex;align-items:center;gap:5px;margin-bottom:4px;flex-wrap:wrap;}
+  .cpcode{font-size:.68rem;color:var(--muted);font-weight:600;background:var(--light);border:1px solid var(--border);padding:2px 7px;border-radius:4px;font-family:monospace;letter-spacing:.04em;}
+  .react-badge{font-size:.65rem;padding:2px 7px;border-radius:20px;font-weight:700;background:var(--primary-l);border:1px solid var(--primary-b);color:#92400e;display:flex;align-items:center;gap:4px;}
+  .loc-badge{font-size:.65rem;padding:2px 7px;border-radius:4px;color:#475569;background:var(--light);border:1px solid var(--border);display:flex;align-items:center;gap:3px;}
+  .loc-badge i{font-size:.55rem;color:var(--muted);}
+
+  /* period blocks */
+  .periods-area{margin-bottom:8px;}
+  .period-block{border-radius:7px;padding:8px 10px;margin-bottom:5px;border:1px solid var(--border);background:var(--light);transition:all .15s;}
+  .period-block.period-current{background:rgba(16,185,129,.04);border-color:rgba(16,185,129,.2);}
+  .period-block.period-match{background:rgba(244,165,4,.05);border-color:var(--primary-b);}
+  .pb-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px;flex-wrap:wrap;}
+  .pb-label{font-size:.63rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+  .pb-label.current{color:#065f46;}
+  .pb-dates{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#64748b;}
+  .d-ok{color:var(--active);font-weight:600;}
+  .d-soon{color:var(--warn);font-weight:600;}
+  .d-past{color:var(--danger);font-weight:600;}
+  .delta{font-size:.62rem;padding:1px 5px;border-radius:4px;font-weight:700;}
+  .delta.ok{background:var(--active-l);color:#065f46;}
+  .delta.soon{background:var(--warn-l);color:#92400e;}
+  .delta.past{background:var(--danger-l);color:#991b1b;}
+  .pb-metrics{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px;}
+  .pm{background:var(--white);border:1px solid var(--border);border-radius:5px;padding:5px 8px;}
+  .pm-v{font-size:.78rem;font-weight:800;color:var(--text);line-height:1;}
+  .pm-l{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;font-weight:600;}
+
+  .tags-area{display:flex;flex-wrap:wrap;gap:4px;}
+  .tag{font-size:.65rem;padding:2px 7px;border-radius:4px;border:1px solid var(--border);color:#475569;background:var(--light);font-weight:500;}
+  .tag.match{border-color:var(--primary-b);background:var(--primary-l);color:#92400e;font-weight:700;}
+  .tag-dir{font-size:.65rem;padding:2px 7px;border-radius:20px;font-weight:600;border:1px solid;}
+  .tag-dir.vdf{background:#fffbeb;border-color:#fde68a;color:#92400e;}
+  .tag-dir.fluxo{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
+  .tag-dir.ir{background:#f0fdf4;border-color:#bbf7d0;color:#15803d;}
+  .tag-dir.wpp{background:#f0fdf4;border-color:#a7f3d0;color:#065f46;}
+  .tag-dir.ecomm{background:#fdf4ff;border-color:#e9d5ff;color:#7e22ce;}
+  .tag-dir.other{background:#f8fafc;border-color:var(--border);color:#475569;}
+  .tag-dir.match{font-weight:800;outline:2px solid var(--primary);outline-offset:1px;}
+
+  .extra-toggle{font-size:.67rem;color:var(--muted);cursor:pointer;padding:3px 0;display:flex;align-items:center;gap:4px;font-weight:600;transition:.2s;}
+  .extra-toggle:hover{color:var(--primary);}
+  .extra-toggle i{font-size:.6rem;transition:.2s;}
+  .extra-periods{display:none;}
+  .extra-periods.open{display:block;}
+
+  /* LIST */
+  .list-wrap{padding:18px 24px 30px;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;background:var(--white);border-radius:12px;overflow:hidden;border:1px solid var(--border);}
+  thead tr{background:var(--light);}
+  th{padding:9px 13px;font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:9px 13px;font-size:.78rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--light);}
+  .td-name{font-weight:700;color:var(--text);}
+  .td-code{font-family:monospace;color:var(--muted);font-size:.7rem;}
+
+  /* EMPTY */
+  .empty{text-align:center;padding:70px 20px;background:var(--white);border-radius:12px;border:1px solid var(--border);}
+  .empty i{font-size:1.8rem;color:var(--muted);opacity:.4;margin-bottom:10px;display:block;}
+  .empty p{font-size:.82rem;color:var(--muted);}
+
+  footer{padding:12px 24px;border-top:1px solid var(--border);font-size:.7rem;color:var(--muted);display:flex;justify-content:space-between;align-items:center;background:var(--white);flex-wrap:wrap;gap:6px;}
+
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px;}
+
+  @media(max-width:640px){
+    .stats{grid-template-columns:1fr 1fr;}
+    .hdr,.filters,.rbar,.grid,.list-wrap,footer{padding-left:12px;padding-right:12px;}
+    .grid{gap:10px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="hdr-ic"><i class="fa-solid fa-chart-bar"></i></div>
+    <div>
+      <div class="hdr-title">Painel de Atividade · CPs</div>
+      <div class="hdr-sub">id3-core.analytics.vw_projeto-mapa · Digital · Ideia3</div>
+    </div>
+  </div>
+  <span class="hdr-badge">📅 D-1: 16/03/2026</span>
+</div>
+
+<!-- STATS — atualizadas a cada filtro -->
+<div class="stats">
+  <div class="stat" id="statTotal">
+    <div class="stat-ic ic-blue"><i class="fa-solid fa-briefcase"></i></div>
+    <div><div class="stat-v" id="sTotal">—</div><div class="stat-l">Total CPs</div></div>
+  </div>
+  <div class="stat" id="statActive">
+    <div class="stat-ic ic-green"><i class="fa-solid fa-circle-play"></i></div>
+    <div><div class="stat-v" id="sActive">—</div><div class="stat-l">Ativas</div></div>
+  </div>
+  <div class="stat" id="statInactive">
+    <div class="stat-ic ic-gray"><i class="fa-solid fa-circle-stop"></i></div>
+    <div><div class="stat-v" id="sInactive">—</div><div class="stat-l">Encerradas</div></div>
+  </div>
+  <div class="stat" id="statInvest">
+    <div class="stat-ic ic-yellow"><i class="fa-solid fa-coins"></i></div>
+    <div>
+      <div class="stat-v" id="sInvest">—</div>
+      <div class="stat-l">Invest. Total</div>
+      <div class="stat-note" id="sInvestNote">todos os períodos</div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <div class="sw"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="qSearch" placeholder="Nome ou código…"/></div>
+
+  <div class="fg"><span class="fl">Status</span>
+    <select id="fStatus"><option value="all">Todos</option><option value="active">Ativas</option><option value="inactive">Encerradas</option></select>
+  </div>
+  <div class="fg"><span class="fl">Ano</span>
+    <select id="fAno"><option value="all">Todos</option><option value="2025">2025</option><option value="2026">2026</option></select>
+  </div>
+  <div class="fg"><span class="fl">Região</span>
+    <select id="fRegiao"><option value="all">Todas</option></select>
+  </div>
+  <div class="fg"><span class="fl">Estado</span>
+    <select id="fEstado"><option value="all">Todos</option></select>
+  </div>
+  <div class="fg"><span class="fl">Veículo</span>
+    <select id="fVeiculo"><option value="all">Todos</option></select>
+  </div>
+  <div class="fg"><span class="fl">Direcionamento</span>
+    <select id="fDir"><option value="all">Todos</option></select>
+  </div>
+  <div class="fg"><span class="fl">Ciclo</span>
+    <select id="fCiclo"><option value="all">Todos</option></select>
+  </div>
+
+  <button class="btn-clear" id="btnClear"><i class="fa-solid fa-xmark"></i> Limpar</button>
+  <div class="divider"></div>
+  <button class="btn-view active" id="btnGrid"><i class="fa-solid fa-grip"></i> Cartões</button>
+  <button class="btn-view" id="btnList"><i class="fa-solid fa-list"></i> Lista</button>
+</div>
+
+<div class="rbar">
+  <div class="rcount">Exibindo <span id="cShown">—</span> de <span id="cTotal">—</span> CPs</div>
+  <span class="d1-note">Ativo = último período com gasto ≥ D-1 (16/03/26) · Início = 1º dia com gasto no período atual · Invest. = soma de todos os períodos do CP</span>
+</div>
+
+<div id="gridArea" class="grid"></div>
+<div id="listArea" class="list-wrap" style="display:none"></div>
+
+<footer>
+  <span>Analytics · Ideia3 · 2026</span>
+  <span>Ativação detectada por gaps > 21 dias entre datas com investimento real</span>
+</footer>
+
+<script>
+const D1='2026-03-16';
+
+// ── DATASET ────────────────────────────────────────────────────────────────
+// regiao normalizada (Centro-Oeste → Centro-Oeste)
+const DATA=[
+  {nome_cp:"CP ACQUA FRESCA",codigo_cp:"10547",regiao:"Nordeste",estado:"Bahia",cidade:"Inhambupe",periodos:[{id:1,ini:"2025-07-11",fim:"2026-03-16",invest:122868.78,imp:14376071,veiculos:["Facebook","Logan","SmartDisplay","Tiktok"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:246}],ciclos:["202510","202511","202512","202513","202514","202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP ANA PAULA D ONOFRIO",codigo_cp:"10691",regiao:"Nordeste",estado:"Bahia",cidade:"Jequié",periodos:[{id:1,ini:"2025-08-23",fim:"2026-03-16",invest:15180.47,imp:3184971,veiculos:["Facebook","Logan","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:195}],ciclos:["202512","202513","202514","202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP ANA RITA DA SILVA",codigo_cp:"10590",regiao:"Nordeste",estado:"Bahia",cidade:"Irará",periodos:[{id:1,ini:"2025-07-09",fim:"2026-03-16",invest:22699.04,imp:3709586,veiculos:["Facebook","Logan","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:246}],ciclos:["202510","202511","202512","202513","202514","202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP ANFORA",codigo_cp:"10257",regiao:"Nordeste",estado:"Paraíba",cidade:"Mari",periodos:[{id:1,ini:"2025-07-24",fim:"2026-03-16",invest:20030.73,imp:6291573,veiculos:["Facebook","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:228}],ciclos:["202511","202512","202513","202514","202515","202516","202517","202601","202602","202603","202604"]},
+  {nome_cp:"CP AROMAS DO RECONCAVO",codigo_cp:"14459",regiao:"Nordeste",estado:"Bahia",cidade:"Muritiba",periodos:[{id:1,ini:"2025-08-13",fim:"2025-10-12",invest:2492.83,imp:669407,veiculos:["Facebook","SmartDisplay","Tiktok"],dirs:["Fluxo","IR-VendaDireta"],dias:54},{id:2,ini:"2025-11-04",fim:"2026-03-16",invest:8752.50,imp:2999632,veiculos:["Facebook","Logan","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:127}],ciclos:["202512","202513","202514","202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP C DINIZ E CIA LTDA",codigo_cp:"10449",regiao:"Nordeste",estado:"Pernambuco",cidade:"Santa Cruz do Capibaribe",periodos:[{id:1,ini:"2025-07-30",fim:"2026-03-16",invest:15214.75,imp:4726920,veiculos:["Facebook","SmartDisplay"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:222}],ciclos:["202511","202512","202513","202514","202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP ERIKA ALMEIDA",codigo_cp:"10470",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Serrania",periodos:[{id:1,ini:"2025-06-17",fim:"2025-09-21",invest:9414.00,imp:1334634,veiculos:["Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDireta"],dias:88},{id:2,ini:"2025-10-14",fim:"2026-03-16",invest:17188.27,imp:2750405,veiculos:["Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:145}],ciclos:["202509","202510","202511","202512","202513","202514","202515","202516","202517","202601","202602","202603","202604"]},
+  {nome_cp:"CP FLOX COMERCIO",codigo_cp:"10282",regiao:"Nordeste",estado:"Pernambuco",cidade:"Paulo Afonso",periodos:[{id:1,ini:"2026-01-01",fim:"2026-03-16",invest:12651.61,imp:2677372,veiculos:["Facebook","Logan","Pmax"],dirs:["Fluxo","Whatsapp"],dias:74}],ciclos:["202601","202602","202603","202604"]},
+  {nome_cp:"CP G C SILVA",codigo_cp:"10299",regiao:"Nordeste",estado:"Sergipe",cidade:"Floriano",periodos:[{id:1,ini:"2025-10-18",fim:"2026-03-16",invest:12177.00,imp:430048,veiculos:["Logan","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo","VDF"],dias:137}],ciclos:["202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP GILEIDE SOUZA",codigo_cp:"11826",regiao:"Nordeste",estado:"Sergipe",cidade:"Aracaju",periodos:[{id:1,ini:"2025-09-01",fim:"2025-09-21",invest:606.47,imp:345785,veiculos:["Facebook","SmartDisplay"],dirs:["Fluxo","IR-VendaDireta"],dias:21},{id:2,ini:"2026-03-04",fim:"2026-03-16",invest:694.13,imp:256220,veiculos:["Pmax"],dirs:["Fluxo"],dias:13}],ciclos:["202513","202604"]},
+  {nome_cp:"CP GINA PELOSO",codigo_cp:"10201",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Varginha",periodos:[{id:1,ini:"2025-08-13",fim:"2025-09-21",invest:2926.97,imp:520488,veiculos:["Facebook","Logan","Pmax","SmartDisplay","Tiktok"],dirs:["Fluxo","IR-VendaDireta"],dias:40},{id:2,ini:"2025-10-15",fim:"2026-03-16",invest:25581.72,imp:5009986,veiculos:["Facebook","Logan","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:147}],ciclos:["202512","202513","202514","202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP GINSENG",codigo_cp:"10269",regiao:"Nordeste",estado:"Bahia",cidade:"Vitória da Conquista",periodos:[{id:1,ini:"2026-03-12",fim:"2026-03-16",invest:903.06,imp:183126,veiculos:["Facebook"],dirs:["IR-VendaDiretadoFuturo"],dias:5}],ciclos:["202604"]},
+  {nome_cp:"CP JACIRA BEZERRA",codigo_cp:"10289",regiao:"Nordeste",estado:"Paraíba",cidade:"Cuité",periodos:[{id:1,ini:"2025-08-13",fim:"2026-03-16",invest:14702.23,imp:5582349,veiculos:["Facebook","Logan","Pmax"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:203}],ciclos:["202512","202513","202514","202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP LOPES E CALDAS",codigo_cp:"10813",regiao:"Nordeste",estado:"Ceará",cidade:"Pacatuba",periodos:[{id:1,ini:"2026-01-21",fim:"2026-03-16",invest:15809.98,imp:3749742,veiculos:["Facebook","Logan","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:43}],ciclos:["202602","202603","202604"]},
+  {nome_cp:"CP LUIZ CELSO PEREIRA DOS PASSOS",codigo_cp:"10598",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Sobradinho",periodos:[{id:1,ini:"2025-07-25",fim:"2026-03-16",invest:90383.56,imp:9853393,veiculos:["Facebook","Logan","Pmax","SmartDisplay","Tiktok"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:207}],ciclos:["202511","202512","202513","202514","202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP NECTAR",codigo_cp:"10343",regiao:"Nordeste",estado:"Bahia",cidade:"Santo Antônio de Jesus",periodos:[{id:1,ini:"2025-07-10",fim:"2026-03-16",invest:21839.50,imp:3966094,veiculos:["Facebook","Logan","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:244}],ciclos:["202510","202511","202512","202513","202514","202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP NICIA M P REIS",codigo_cp:"10146",regiao:"Norte",estado:"Tocantins",cidade:"Palmas",periodos:[{id:1,ini:"2026-01-28",fim:"2026-03-16",invest:44387.55,imp:7804720,veiculos:["Facebook","Logan","Pmax"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:48}],ciclos:["202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP PABLO PESTANA",codigo_cp:"10344",regiao:"Nordeste",estado:"Bahia",cidade:"Ipiaú",periodos:[{id:1,ini:"2025-07-15",fim:"2026-03-16",invest:19955.37,imp:2138161,veiculos:["Facebook","Logan","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:244}],ciclos:["202510","202511","202512","202513","202514","202515","202516","202517","202601","202602","202603","202604","OFF-CICLO"]},
+  {nome_cp:"CP SEABRA PERFUMES",codigo_cp:"10354",regiao:"Nordeste",estado:"Bahia",cidade:"Seabra",periodos:[{id:1,ini:"2025-10-28",fim:"2025-12-25",invest:4631.34,imp:487728,veiculos:["Facebook","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:59},{id:2,ini:"2026-03-02",fim:"2026-03-16",invest:1301.79,imp:371965,veiculos:["Facebook","Pmax"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:15}],ciclos:["202515","202516","202517","202604"]},
+  {nome_cp:"CP VILAROUCA",codigo_cp:"10173",regiao:"Nordeste",estado:"Ceará",cidade:"Quixadá",periodos:[{id:1,ini:"2026-01-21",fim:"2026-03-16",invest:18616.62,imp:3445443,veiculos:["Facebook","Logan","Pmax"],dirs:["Fluxo","IR-VendaDiretadoFuturo","Whatsapp"],dias:53}],ciclos:["202602","202603","202604"]},
+  {nome_cp:"CP VITORIA REGIA",codigo_cp:"10363",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Três Corações",periodos:[{id:1,ini:"2025-09-24",fim:"2026-03-16",invest:13214.22,imp:1366196,veiculos:["Facebook","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo","Whatsapp"],dias:167}],ciclos:["202514","202515","202516","202517","202601","202602","202603","202604"]},
+  {nome_cp:"CP WILEIDE SOUZA TAVEIRA",codigo_cp:"10601",regiao:"Nordeste",estado:"Bahia",cidade:"Monte Santo",periodos:[{id:1,ini:"2025-10-14",fim:"2026-03-16",invest:21630.76,imp:2682070,veiculos:["Facebook","Logan","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo","VDF"],dias:151}],ciclos:["202515","202516","202517","202601","202602","202603","202604"]},
+  // encerradas
+  {nome_cp:"CP AERO",codigo_cp:"13031",regiao:"Sudeste",estado:"Sergipe",cidade:"Teresina",periodos:[{id:1,ini:"2025-06-10",fim:"2026-03-01",invest:86704.06,imp:4931270,veiculos:["Facebook","Pmax","PositivoAds","SmartDisplay","Uber"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:180}],ciclos:["202507","202510","202513","202514","202515","202516","202517","202601","202602","202603","202604"]},
+  {nome_cp:"CP B E E A",codigo_cp:"10117",regiao:"Norte",estado:"Rondônia",cidade:"Interior",periodos:[{id:1,ini:"2025-04-11",fim:"2025-04-30",invest:5101.32,imp:146032,veiculos:["SmartDisplay"],dirs:["IR-VendaDireta"],dias:20},{id:2,ini:"2025-06-14",fim:"2025-07-15",invest:3265.01,imp:82333,veiculos:["SmartDisplay"],dirs:["IR-VendaDireta"],dias:32},{id:3,ini:"2025-09-11",fim:"2026-01-18",invest:10836.87,imp:1804731,veiculos:["Facebook","SmartDisplay"],dirs:["IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:94}],ciclos:["202505","202506","202507","202508","202509","202510","202511","202512","202513","202514","202515","202516","202517","202601","OFF-CICLO"]},
+  {nome_cp:"CP BEBIANO DE SOUZA",codigo_cp:"10228",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Viçosa",periodos:[{id:1,ini:"2025-09-01",fim:"2025-09-21",invest:3712.85,imp:1358448,veiculos:["Facebook","Logan"],dirs:["Fluxo"],dias:21},{id:2,ini:"2025-10-15",fim:"2026-02-08",invest:9459.25,imp:1760411,veiculos:["Logan","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:107}],ciclos:["202513","202515","202516","202517","202601","202602"]},
+  {nome_cp:"CP BTSG",codigo_cp:"19825",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Santos Dumont",periodos:[{id:1,ini:"2025-01-01",fim:"2025-01-19",invest:1879.30,imp:92948,veiculos:["SmartDisplay"],dirs:["IR-VendaDireta"],dias:19},{id:2,ini:"2025-02-10",fim:"2025-04-13",invest:6003.81,imp:195782,veiculos:["SmartDisplay"],dirs:["IR-VendaDireta"],dias:63},{id:3,ini:"2025-05-09",fim:"2025-06-12",invest:18621.36,imp:425854,veiculos:["SmartDisplay"],dirs:["IR-VendaDireta"],dias:25},{id:4,ini:"2025-08-12",fim:"2025-12-25",invest:89404.05,imp:15563181,veiculos:["Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:122}],ciclos:["202501","202502","202503","202504","202505","202506","202507","202508","202509","202510","202511","202512","202513","202514","202515","202516","202517"]},
+  {nome_cp:"CP CHRIS MAISON",codigo_cp:"10675",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Maria da Fé",periodos:[{id:1,ini:"2025-09-24",fim:"2025-11-02",invest:11724.36,imp:662756,veiculos:["Facebook","SmartDisplay"],dirs:["IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:37},{id:2,ini:"2025-12-01",fim:"2025-12-25",invest:1935.01,imp:8751,veiculos:["SmartDisplay"],dirs:["IR-VendaDiretadoFuturo"],dias:25}],ciclos:["202514","202515","202516","202517","202601","202602","OFF-CICLO"]},
+  {nome_cp:"CP CLAUDETE",codigo_cp:"10179",regiao:"Sudeste",estado:"Rio de Janeiro",cidade:"Volta Redonda",periodos:[{id:1,ini:"2025-01-21",fim:"2025-04-13",invest:15723.29,imp:367851,veiculos:["SmartDisplay"],dirs:["IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:83},{id:2,ini:"2025-06-30",fim:"2025-12-24",invest:50028.79,imp:773007,veiculos:["SmartDisplay"],dirs:["IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:178}],ciclos:["202502","202503","202504","202505","202506","202507","202508","202509","202510","202511","202512","202513","202514","202515","202516","202517","202601","OFF-CICLO"]},
+  {nome_cp:"CP DUTRA E CIA",codigo_cp:"10492",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Aguas Formosas",periodos:[{id:1,ini:"2025-11-05",fim:"2026-02-06",invest:1827.24,imp:162112,veiculos:["Facebook","SmartDisplay"],dirs:["IR-VendaDiretadoFuturo","VDF"],dias:50}],ciclos:["202516","202517","202602"]},
+  {nome_cp:"CP ELIDA",codigo_cp:"10174",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Muriaé",periodos:[{id:1,ini:"2025-07-26",fim:"2025-08-31",invest:1664.90,imp:33537,veiculos:["SmartDisplay"],dirs:["IR-VendaDireta"],dias:37},{id:2,ini:"2025-10-14",fim:"2025-11-14",invest:1845.51,imp:56174,veiculos:["Logan","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:25},{id:3,ini:"2025-12-15",fim:"2026-02-08",invest:9796.67,imp:2147758,veiculos:["Facebook","Logan","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:44}],ciclos:["202511","202512","202513","202515","202516","202517","202601","202602","OFF-CICLO"]},
+  {nome_cp:"CP EROS COMERCIAL",codigo_cp:"10189",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Conselheiro Lafaiete",periodos:[{id:1,ini:"2025-09-05",fim:"2025-09-07",invest:1736.00,imp:108562,veiculos:["Logan"],dirs:["Fluxo"],dias:3},{id:2,ini:"2025-10-14",fim:"2025-11-02",invest:1499.54,imp:210519,veiculos:["Facebook"],dirs:["E-commerce"],dias:20},{id:3,ini:"2025-12-04",fim:"2025-12-25",invest:3186.15,imp:564584,veiculos:["Facebook","Logan","Pmax"],dirs:["E-commerce","Fluxo"],dias:22}],ciclos:["202513","202515","202517","OFF-CICLO"]},
+  {nome_cp:"CP IVALDETE MARIA COELHO",codigo_cp:"10775",regiao:"Centro-Oeste",estado:"Mato Grosso do Sul",cidade:"Campo Grande",periodos:[{id:1,ini:"2025-11-24",fim:"2025-12-25",invest:3388.48,imp:601151,veiculos:["Facebook","Pmax"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:32}],ciclos:["202516","202517","202602"]},
+  {nome_cp:"CP JOSE ROBERTO",codigo_cp:"10058",regiao:"Sudeste",estado:"São Paulo",cidade:"Lins",periodos:[{id:1,ini:"2025-01-03",fim:"2025-01-19",invest:3454.33,imp:91179,veiculos:["SmartDisplay"],dirs:["IR-VendaDiretadoFuturo"],dias:17},{id:2,ini:"2025-05-14",fim:"2025-06-12",invest:9116.86,imp:208317,veiculos:["SmartDisplay"],dirs:["IR-VendaDiretadoFuturo"],dias:30},{id:3,ini:"2025-08-11",fim:"2025-09-21",invest:7023.99,imp:122253,veiculos:["SmartDisplay"],dirs:["IR-VendaDiretadoFuturo"],dias:41},{id:4,ini:"2025-10-27",fim:"2025-12-25",invest:5497.65,imp:1311865,veiculos:["Facebook"],dirs:["IR-VendaDiretadoFuturo"],dias:58}],ciclos:["202501","202502","202503","202507","202508","202509","202510","202511","202512","202513","202514","202515"]},
+  {nome_cp:"CP LARA PERFUMARIA",codigo_cp:"10295",regiao:"Nordeste",estado:"Bahia",cidade:"Itaberaba",periodos:[{id:1,ini:"2025-09-03",fim:"2025-11-02",invest:6729.10,imp:434721,veiculos:["Facebook","SmartDisplay"],dirs:["IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:60},{id:2,ini:"2026-01-22",fim:"2026-01-29",invest:1440.00,imp:81826,veiculos:["Logan"],dirs:["Fluxo"],dias:8}],ciclos:["202513","202514","202515","202516","202601","202602"]},
+  {nome_cp:"CP LLAL",codigo_cp:"10129",regiao:"Centro-Oeste",estado:"Distrito Federal",cidade:"Águas Claras",periodos:[{id:1,ini:"2025-11-11",fim:"2025-12-25",invest:36765.35,imp:1617348,veiculos:["Facebook","Logan","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo","Whatsapp"],dias:45}],ciclos:["202516","202517","202601","202602","202603","OFF-CICLO"]},
+  {nome_cp:"CP MARGARETH",codigo_cp:"10350",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Vespasiano",periodos:[{id:1,ini:"2025-07-01",fim:"2025-08-31",invest:6032.32,imp:143866,veiculos:["SmartDisplay"],dirs:["IR-VendaDireta"],dias:62},{id:2,ini:"2025-09-26",fim:"2026-02-08",invest:34857.98,imp:3724302,veiculos:["Facebook","Logan","Pmax","SmartDisplay","Tiktok"],dirs:["Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:124}],ciclos:["202510","202511","202512","202513","202514","202515","202516","202517","202601","202602","202603"]},
+  {nome_cp:"CP MARIA SELMA",codigo_cp:"10307",regiao:"Sudeste",estado:"Espírito Santo",cidade:"Porto Seguro",periodos:[{id:1,ini:"2025-07-23",fim:"2025-09-21",invest:7843.92,imp:87421,veiculos:["SmartDisplay"],dirs:["IR-VendaDiretadoFuturo"],dias:59},{id:2,ini:"2026-01-21",fim:"2026-01-25",invest:2000.00,imp:113726,veiculos:["Logan"],dirs:["Fluxo"],dias:5}],ciclos:["202511","202512","202513","202514","202516","202602"]},
+  {nome_cp:"CP MEDEIROS LOCATELLI",codigo_cp:"10219",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Pará de Minas",periodos:[{id:1,ini:"2025-10-16",fim:"2025-11-02",invest:1999.19,imp:15981,veiculos:["SmartDisplay"],dirs:["IR-VendaDiretadoFuturo"],dias:18},{id:2,ini:"2025-12-02",fim:"2025-12-25",invest:3576.94,imp:282273,veiculos:["Facebook","Logan","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:24},{id:3,ini:"2026-01-27",fim:"2026-02-08",invest:5579.73,imp:666602,veiculos:["Facebook","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:13}],ciclos:["202515","202516","202517","202602","202603","202604"]},
+  {nome_cp:"CP MOLLICA",codigo_cp:"10222",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Viçosa",periodos:[{id:1,ini:"2025-09-15",fim:"2025-09-15",invest:176.21,imp:10012,veiculos:["Logan"],dirs:["Fluxo"],dias:1},{id:2,ini:"2026-01-01",fim:"2026-02-08",invest:5642.59,imp:1567595,veiculos:["Facebook","Logan","Pmax"],dirs:["Fluxo","IR-VendaDiretadoFuturo"],dias:39}],ciclos:["202513","202517","202601","202602","OFF-CICLO"]},
+  {nome_cp:"CP RAPHA PRODUTOS",codigo_cp:"10809",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Vazante",periodos:[{id:1,ini:"2025-10-15",fim:"2025-11-02",invest:1995.04,imp:25427,veiculos:["SmartDisplay"],dirs:["IR-VendaDiretadoFuturo"],dias:19},{id:2,ini:"2025-12-15",fim:"2026-02-08",invest:9711.52,imp:733685,veiculos:["Logan","Pmax"],dirs:["Fluxo"],dias:33}],ciclos:["202515","202516","202517","202601","202602"]},
+  {nome_cp:"CP URBANO BESSA",codigo_cp:"10361",regiao:"Sudeste",estado:"Minas Gerais",cidade:"Três Corações",periodos:[{id:1,ini:"2025-08-13",fim:"2025-12-25",invest:39854.20,imp:2564558,veiculos:["Facebook","SmartDisplay"],dirs:["IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:120}],ciclos:["202512","202513","202514","202515","202516","202517","202602","202603","202604"]},
+  {nome_cp:"CP VM",codigo_cp:"10708",regiao:"Centro-Oeste",estado:"Goiás",cidade:"Goiânia",periodos:[{id:1,ini:"2025-10-29",fim:"2025-12-01",invest:6228.19,imp:70322,veiculos:["SmartDisplay"],dirs:["IR-VendaDiretadoFuturo"],dias:32},{id:2,ini:"2026-01-13",fim:"2026-02-08",invest:3593.63,imp:27186,veiculos:["SmartDisplay"],dirs:["IR-VendaDiretadoFuturo"],dias:27}],ciclos:["202515","202516","202517","202601","202602","202603","202604"]},
+  {nome_cp:"CP WNALD",codigo_cp:"10522",regiao:"Nordeste",estado:"Bahia",cidade:"Catu",periodos:[{id:1,ini:"2025-07-22",fim:"2025-11-30",invest:9423.01,imp:1621714,veiculos:["Facebook","SmartDisplay"],dirs:["E-commerce","Fluxo","IR-VendaDireta","IR-VendaDiretadoFuturo"],dias:119},{id:2,ini:"2026-01-01",fim:"2026-01-18",invest:1800.32,imp:187870,veiculos:["Facebook","Pmax","SmartDisplay"],dirs:["Fluxo","IR-VendaDiretadoFuturo","Whatsapp"],dias:18}],ciclos:["202511","202512","202513","202514","202515","202516","202601","202603","OFF-CICLO"]},
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+const NOISE=new Set(['NA','V','']);
+function cleanDirs(arr){const m={};arr.forEach(d=>{const k=d.trim().replace(/^WhatsApp$/i,'Whatsapp').replace(/^Ecommerce$/i,'E-commerce');if(!NOISE.has(k))m[k]=true;});return Object.keys(m).sort();}
+function allDirsCP(cp){return cleanDirs(cp.periodos.flatMap(p=>p.dirs));}
+function allVeicsCP(cp){return[...new Set(cp.periodos.flatMap(p=>p.veiculos))].sort();}
+function lastP(cp){return cp.periodos[cp.periodos.length-1];}
+function isActive(cp){return lastP(cp).fim>=D1;}
+function totalInvestCP(cp){return cp.periodos.reduce((a,p)=>a+(p.invest||0),0);}
+function dateDiff(s){return Math.round((new Date(s+'T12:00:00')-new Date(D1+'T12:00:00'))/86400000);}
+function fmtDate(s){const[y,m,d]=s.split('-');return`${d}/${m}/${y}`;}
+function fmt(n){if(n==null)return'—';if(n>=1e6)return(n/1e6).toFixed(1).replace('.',',')+' M';if(n>=1e3)return(n/1e3).toFixed(1).replace('.',',')+' K';return n.toLocaleString('pt-BR');}
+function fmtBRL(n){if(n==null)return'—';return'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function dirClass(d){if(d==='VDF')return'vdf';if(d==='Fluxo')return'fluxo';if(d.startsWith('IR-'))return'ir';if(d.toLowerCase().includes('whatsapp'))return'wpp';if(d.toLowerCase().includes('commerce'))return'ecomm';return'other';}
+function dirLabel(d){const L={'VDF':'VDF','Fluxo':'Fluxo','IR-VendaDireta':'IR·VD','IR-VendaDiretadoFuturo':'IR·VDF','Whatsapp':'WhatsApp','E-commerce':'E-com','Encontre':'Encontre'};return L[d]||d;}
+function dc(s){const d=dateDiff(s);return d<0?'past':d<=7?'soon':'ok';}
+function dl(s){const d=dateDiff(s);if(d<0)return`há ${Math.abs(d)}d`;if(d===0)return'hoje';return`+${d}d`;}
+function cpYears(cp){return[...new Set(cp.periodos.flatMap(p=>[p.ini.slice(0,4),p.fim.slice(0,4)]))];}
+
+// ── Populate selects ───────────────────────────────────────────────────────
+// Região/Estado cascade
+const regiaoMap={};
+DATA.forEach(cp=>{
+  const r=cp.regiao||'';const e=cp.estado||'';
+  if(!r)return;
+  if(!regiaoMap[r])regiaoMap[r]=new Set();
+  if(e)regiaoMap[r].add(e);
+});
+const regioes=Object.keys(regiaoMap).sort();
+const fRegiaoEl=document.getElementById('fRegiao');
+const fEstadoEl=document.getElementById('fEstado');
+regioes.forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;fRegiaoEl.appendChild(o);});
+
+function updateEstados(regiao){
+  fEstadoEl.innerHTML='<option value="all">Todos</option>';
+  const estados=regiao==='all'
+    ?[...new Set(DATA.map(c=>c.estado).filter(Boolean))].sort()
+    :[...(regiaoMap[regiao]||[])].sort();
+  estados.forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;fEstadoEl.appendChild(o);});
+  fEstadoEl.disabled=false;
+}
+updateEstados('all');
+fRegiaoEl.addEventListener('change',()=>{updateEstados(fRegiaoEl.value);fEstadoEl.value='all';apply();});
+
+const allVeicSet=[...new Set(DATA.flatMap(allVeicsCP))].sort();
+const allDirSet=[...new Set(DATA.flatMap(allDirsCP))].sort();
+const allCicloSet=[...new Set(DATA.flatMap(cp=>cp.ciclos))].sort();
+function pop(id,arr){const el=document.getElementById(id);arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o);});}
+pop('fVeiculo',allVeicSet);pop('fDir',allDirSet);pop('fCiclo',allCicloSet);
+
+// ── Update stats (reactive) ────────────────────────────────────────────────
+function updateStats(filtered,isFiltered){
+  const total=filtered.length;
+  const active=filtered.filter(isActive).length;
+  const invest=filtered.reduce((a,cp)=>a+totalInvestCP(cp),0);
+  document.getElementById('sTotal').textContent=total;
+  document.getElementById('sActive').textContent=active;
+  document.getElementById('sInactive').textContent=total-active;
+  document.getElementById('sInvest').textContent=fmtBRL(invest);
+  document.getElementById('sInvestNote').textContent=isFiltered?'filtro aplicado · todos os períodos':'todos os períodos';
+  // dim inactive stats if filtered
+  ['statTotal','statActive','statInactive','statInvest'].forEach(id=>{
+    document.getElementById(id).classList.toggle('dimmed',isFiltered&&id!=='statInvest'&&false);
+  });
+}
+
+// ── Render CARD ────────────────────────────────────────────────────────────
+function periodHTML(p,isCurrent,fV,fD){
+  const dcls=dc(p.fim);const dlbl=dl(p.fim);
+  const hasVMatch=fV&&fV!=='all'&&p.veiculos.includes(fV);
+  const hasDMatch=fD&&fD!=='all'&&cleanDirs(p.dirs).includes(fD);
+  const blockCls=isCurrent?'period-current':(hasVMatch||hasDMatch?'period-match':'');
+  const vTags=p.veiculos.map(v=>`<span class="tag${fV&&v===fV?' match':''}">${v}</span>`).join('');
+  const dTags=cleanDirs(p.dirs).map(d=>`<span class="tag-dir ${dirClass(d)}${fD&&d===fD?' match':''}">${dirLabel(d)}</span>`).join('');
+  return`<div class="period-block ${blockCls}">
+    <div class="pb-top">
+      <span class="pb-label ${isCurrent?'current':''}">${isCurrent?'● Período atual':'○ Per. '+p.id}</span>
+      <span class="pb-dates">
+        <span>${fmtDate(p.ini)}</span><span style="color:var(--muted)"> → </span>
+        <span class="d-${dcls}">${fmtDate(p.fim)}</span>
+        <span class="delta ${dcls}">${dlbl}</span>
+      </span>
+    </div>
+    <div class="pb-metrics">
+      <div class="pm"><div class="pm-v">${fmtBRL(p.invest)}</div><div class="pm-l">Investimento</div></div>
+      <div class="pm"><div class="pm-v">${fmt(p.imp)}</div><div class="pm-l">Impressões</div></div>
+    </div>
+    <div class="tags-area">${dTags}${vTags}</div>
+  </div>`;
+}
+
+function renderGrid(data,f){
+  const area=document.getElementById('gridArea');
+  area.innerHTML='';
+  if(!data.length){area.innerHTML=`<div class="empty"><i class="fa-solid fa-magnifying-glass"></i><p>Nenhum CP encontrado para os filtros selecionados.</p></div>`;return;}
+  data.forEach(cp=>{
+    const active=isActive(cp);const nP=cp.periodos.length;
+    const cur=cp.periodos[nP-1];const extras=cp.periodos.slice(0,-1);
+    const extraHTML=extras.length?`
+      <div class="extra-toggle" onclick="const ep=this.nextElementSibling;ep.classList.toggle('open');this.querySelector('i').style.transform=ep.classList.contains('open')?'rotate(90deg)':''">
+        <i class="fa-solid fa-chevron-right" style="font-size:.6rem;transition:.2s"></i>
+        ${extras.length} ativação${extras.length>1?'ões':''} anterior${extras.length>1?'es':''}
+      </div>
+      <div class="extra-periods">${extras.map(p=>periodHTML(p,false,f.veiculo,f.dir)).join('')}</div>`:'';
+    const card=document.createElement('div');
+    card.className=`card ${active?'is-active':'is-inactive'}`;
+    card.innerHTML=`
+      <div class="ctop">
+        <div class="cname">${cp.nome_cp.trim()}</div>
+        <div class="sbadge ${active?'active':'inactive'}"><div class="dot ${active?'active':'inactive'}"></div>${active?'Ativa':'Encerrada'}</div>
+      </div>
+      <div class="cmeta">
+        <span class="cpcode"># ${cp.codigo_cp}</span>
+        ${nP>1?`<span class="react-badge"><i class="fa-solid fa-rotate-right" style="font-size:.6rem"></i>${nP}ª ativação</span>`:''}
+        ${cp.cidade&&cp.estado?`<span class="loc-badge"><i class="fa-solid fa-location-dot"></i>${cp.cidade}, ${cp.estado}</span>`:''}
+      </div>
+      <div class="periods-area">
+        ${periodHTML(cur,true,f.veiculo,f.dir)}
+        ${extraHTML}
+      </div>`;
+    area.appendChild(card);
+  });
+}
+
+function renderList(data){
+  const area=document.getElementById('listArea');
+  if(!data.length){area.innerHTML=`<div class="empty"><i class="fa-solid fa-magnifying-glass"></i><p>Nenhum CP encontrado.</p></div>`;return;}
+  const rows=data.map(cp=>{
+    const active=isActive(cp);const lp=lastP(cp);const nP=cp.periodos.length;
+    const invest=totalInvestCP(cp);const dcls=dc(lp.fim);
+    return`<tr>
+      <td><div class="td-name">${cp.nome_cp.trim()}</div></td>
+      <td class="td-code">${cp.codigo_cp}</td>
+      <td><div class="sbadge ${active?'active':'inactive'}" style="display:inline-flex"><div class="dot ${active?'active':'inactive'}"></div>${active?'Ativa':'Encerrada'}</div></td>
+      <td style="font-size:.75rem">${cp.estado||'—'}</td>
+      <td style="font-family:monospace;font-size:.74rem">${fmtDate(lp.ini)}</td>
+      <td style="font-size:.74rem"><span class="d-${dcls}" style="font-family:monospace">${fmtDate(lp.fim)}</span> <span class="delta ${dcls}">${dl(lp.fim)}</span></td>
+      <td style="font-weight:700;font-size:.82rem">${fmtBRL(invest)}</td>
+      <td style="text-align:center"><span class="sbadge ${nP>1?'active':'inactive'}" style="display:inline-flex;justify-content:center">${nP===1?'1 período':`${nP} períodos`}</span></td>
+      <td><div class="tags-area">${allVeicsCP(cp).slice(0,4).map(v=>`<span class="tag">${v}</span>`).join('')}</div></td>
+    </tr>`;
+  }).join('');
+  area.innerHTML=`<table>
+    <thead><tr><th>Nome CP</th><th>Código</th><th>Status</th><th>Estado</th><th>Início atual</th><th>Fim atual</th><th>Invest. Total</th><th>Períodos</th><th>Veículos</th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+}
+
+// ── Filter ─────────────────────────────────────────────────────────────────
+let viewMode='grid';
+
+function getF(){
+  return{
+    q:document.getElementById('qSearch').value.toLowerCase().trim(),
+    status:document.getElementById('fStatus').value,
+    ano:document.getElementById('fAno').value,
+    regiao:document.getElementById('fRegiao').value,
+    estado:document.getElementById('fEstado').value,
+    veiculo:document.getElementById('fVeiculo').value,
+    dir:document.getElementById('fDir').value,
+    ciclo:document.getElementById('fCiclo').value,
+  };
+}
+
+function isFiltered(f){
+  return f.q||f.status!=='all'||f.ano!=='all'||f.regiao!=='all'||f.estado!=='all'||f.veiculo!=='all'||f.dir!=='all'||f.ciclo!=='all';
+}
+
+function apply(){
+  const f=getF();
+  let d=DATA.filter(cp=>{
+    const active=isActive(cp);
+    if(f.q&&!cp.nome_cp.toLowerCase().includes(f.q)&&!cp.codigo_cp.includes(f.q))return false;
+    if(f.status==='active'&&!active)return false;
+    if(f.status==='inactive'&&active)return false;
+    if(f.ano!=='all'&&!cpYears(cp).includes(f.ano))return false;
+    if(f.regiao!=='all'&&cp.regiao!==f.regiao)return false;
+    if(f.estado!=='all'&&cp.estado!==f.estado)return false;
+    if(f.veiculo!=='all'&&!allVeicsCP(cp).includes(f.veiculo))return false;
+    if(f.dir!=='all'&&!allDirsCP(cp).includes(f.dir))return false;
+    if(f.ciclo!=='all'&&!cp.ciclos.includes(f.ciclo))return false;
+    return true;
+  });
+  d.sort((a,b)=>{
+    const aa=isActive(a),ba=isActive(b);
+    if(aa!==ba)return aa?-1:1;
+    return lastP(b).fim.localeCompare(lastP(a).fim);
+  });
+  document.getElementById('cShown').textContent=d.length;
+  document.getElementById('cTotal').textContent=DATA.length;
+  updateStats(d,!!isFiltered(f));
+  if(viewMode==='grid'){
+    document.getElementById('gridArea').style.display='';
+    document.getElementById('listArea').style.display='none';
+    renderGrid(d,f);
+  }else{
+    document.getElementById('gridArea').style.display='none';
+    document.getElementById('listArea').style.display='';
+    renderList(d);
+  }
+}
+
+['qSearch','fStatus','fAno','fEstado','fVeiculo','fDir','fCiclo'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',apply);
+  document.getElementById(id).addEventListener('change',apply);
+});
+document.getElementById('btnClear').addEventListener('click',()=>{
+  document.getElementById('qSearch').value='';
+  ['fStatus','fAno','fRegiao','fEstado','fVeiculo','fDir','fCiclo'].forEach(id=>document.getElementById(id).value='all');
+  updateEstados('all');apply();
+});
+document.getElementById('btnGrid').addEventListener('click',()=>{viewMode='grid';document.getElementById('btnGrid').classList.add('active');document.getElementById('btnList').classList.remove('active');apply();});
+document.getElementById('btnList').addEventListener('click',()=>{viewMode='list';document.getElementById('btnList').classList.add('active');document.getElementById('btnGrid').classList.remove('active');apply();});
+
+apply();
+</script>
+</body>
+</html>
